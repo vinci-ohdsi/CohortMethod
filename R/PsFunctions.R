@@ -230,6 +230,7 @@ createPs <- function(cohortMethodData,
     }
   }
   if (is.null(error)) {
+    ParallelLogger::logInfo("benchmark | CohortMethod::createPs | fitting Cyclops model | start")
     cyclopsFit <- tryCatch(
       {
         Cyclops::fitCyclopsModel(cyclopsData, prior = prior, control = control)
@@ -252,6 +253,8 @@ createPs <- function(cohortMethodData,
       }
     }
   }
+  ParallelLogger::logInfo("benchmark | CohortMethod::createPs | fitting Cyclops model | end")
+
   if (is.null(error)) {
     error <- "OK"
     cfs <- coef(cyclopsFit)
