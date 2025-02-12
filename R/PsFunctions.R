@@ -147,11 +147,15 @@ createPs <- function(cohortMethodData,
         covariates <- covariates %>%
           filter(!.data$covariateId %in% excludeCovariateIds)
       }
+
+      ParallelLogger::logInfo("benchmark | CohortMethod::createPs | creating filteredCovariateData | start")
       filteredCovariateData <- Andromeda::andromeda(
         covariates = covariates,
         covariateRef = cohortMethodData$covariateRef,
         analysisRef = cohortMethodData$analysisRef
       )
+      ParallelLogger::logInfo("benchmark | CohortMethod::createPs | creating filteredCovariateData | end")
+
       metaData <- attr(cohortMethodData, "metaData")
       metaData$populationSize <- nrow(population)
       attr(filteredCovariateData, "metaData") <- metaData
@@ -196,7 +200,11 @@ createPs <- function(cohortMethodData,
     } else {
       message("Cyclops using precision of ", floatingPoint)
     }
+
+    ParallelLogger::logInfo("benchmark | Cyclops::convertToCyclopsData | creating cyclopsData | start")
     cyclopsData <- Cyclops::convertToCyclopsData(covariateData$outcomes, covariates, modelType = "lr", quiet = TRUE, floatingPoint = floatingPoint)
+    ParallelLogger::logInfo("benchmark | Cyclops::convertToCyclopsData | creating cyclopsData | end")
+
     error <- NULL
     ref <- NULL
     if (errorOnHighCorrelation) {
@@ -222,6 +230,7 @@ createPs <- function(cohortMethodData,
     }
   }
   if (is.null(error)) {
+    ParallelLogger::logInfo("benchmark | CohortMethod::createPs | fitting Cyclops model | start")
     cyclopsFit <- tryCatch(
       {
         Cyclops::fitCyclopsModel(cyclopsData, prior = prior, control = control)
@@ -244,6 +253,8 @@ createPs <- function(cohortMethodData,
       }
     }
   }
+  ParallelLogger::logInfo("benchmark | CohortMethod::createPs | fitting Cyclops model | end")
+
   if (is.null(error)) {
     error <- "OK"
     cfs <- coef(cyclopsFit)
