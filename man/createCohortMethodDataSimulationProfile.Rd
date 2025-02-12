@@ -4,11 +4,22 @@
 \alias{createCohortMethodDataSimulationProfile}
 \title{Create simulation profile}
 \usage{
-createCohortMethodDataSimulationProfile(cohortMethodData)
+createCohortMethodDataSimulationProfile(
+  cohortMethodData,
+  psMaxCohortSizeForFitting = 25000,
+  controlPs = Cyclops::createControl(cvRepetitions = "auto"),
+  controlOutcome = Cyclops::createControl(cvRepetitions = "auto")
+)
 }
 \arguments{
 \item{cohortMethodData}{An object of type \link{CohortMethodData} as generated using
 \code{\link[=getDbCohortMethodData]{getDbCohortMethodData()}}.}
+
+\item{psMaxCohortSizeForFitting}{The PS model's parameter (see CohortMethod::createPs maxCohortSizeForFitting)}
+
+\item{controlPs}{The PS model's control object used to control the cross-validation used to determine the hyperparameters of the prior (if applicable). See Cyclops::createControl() for details.}
+
+\item{controlOutcome}{The outcome model's control object}
 }
 \value{
 An object of type \code{CohortDataSimulationProfile}.

@@ -23,6 +23,12 @@
 #'
 #' @template CohortMethodData
 #'
+#' @param psMaxCohortSizeForFitting The PS model's parameter (see CohortMethod::createPs maxCohortSizeForFitting)
+#'
+#' @param controlPs The PS model's control object used to control the cross-validation used to determine the hyperparameters of the prior (if applicable). See Cyclops::createControl() for details.
+#'
+#' @param controlOutcome The outcome model's control object
+#'
 #' @details
 #' The output of this function is an object that can be used by the [simulateCohortMethodData()]
 #' function to generate a cohortMethodData object.
@@ -31,7 +37,10 @@
 #' An object of type `CohortDataSimulationProfile`.
 #'
 #' @export
-createCohortMethodDataSimulationProfile <- function(cohortMethodData) {
+createCohortMethodDataSimulationProfile <- function(cohortMethodData,
+                                                    psMaxCohortSizeForFitting = 25000,
+                                                    controlPs = Cyclops::createControl(cvRepetitions = "auto"),
+                                                    controlOutcome = Cyclops::createControl(cvRepetitions = "auto")) {
   errorMessages <- checkmate::makeAssertCollection()
   checkmate::assertClass(cohortMethodData, "CohortMethodData", add = errorMessages)
   checkmate::reportAssertions(collection = errorMessages)
@@ -64,8 +73,9 @@ createCohortMethodDataSimulationProfile <- function(cohortMethodData) {
 
   message("Computing propensity model")
   propensityScore <- createPs(cohortMethodData,
-                              maxCohortSizeForFitting = 25000,
-                              prior = Cyclops::createPrior("laplace", 0.1, exclude = 0)
+                              maxCohortSizeForFitting = psMaxCohortSizeForFitting,
+                              prior = Cyclops::createPrior("laplace", 0.1, exclude = 0),
+                              control = controlPs
   )
   propensityModel <- attr(propensityScore, "metaData")$psModelCoef
 
@@ -88,7 +98,8 @@ createCohortMethodDataSimulationProfile <- function(cohortMethodData) {
       modelType = "poisson",
       stratified = FALSE,
       useCovariates = TRUE,
-      prior = Cyclops::createPrior("laplace", 0.1, exclude = 0)
+      prior = Cyclops::createPrior("laplace", 0.1, exclude = 0),
+      control = controlOutcome
     )
     outcomeModels[[i]] <- outcomeModel$outcomeModelCoefficients[outcomeModel$outcomeModelCoefficients != 0]
   }
