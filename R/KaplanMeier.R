@@ -32,6 +32,7 @@
 #' @param confidenceIntervals   Plot 95 percent confidence intervals? Default is TRUE, as recommended by Pocock et al.
 #' @param includeZero           Should the y axis include zero, or only go down to the lowest observed
 #'                              survival? The default is FALSE, as recommended by Pocock et al.
+#' @param xBreaksInterval       If NULL then reasonable defaults, otherwise integer provided 
 #' @param dataTable             Should the numbers at risk be shown in a table? Default is TRUE, as recommended by Pocock et al.
 #' @param dataCutoff            Fraction of the data (number censored) after which the graph will not
 #'                              be shown. The default is 90 percent as recommended by Pocock et al.
@@ -62,6 +63,7 @@ plotKaplanMeier <- function(population,
                             censorMarks = FALSE,
                             confidenceIntervals = TRUE,
                             includeZero = FALSE,
+                            xBreaksInterval = NULL,
                             dataTable = TRUE,
                             dataCutoff = 0.90,
                             targetLabel = "Treated",
@@ -73,6 +75,7 @@ plotKaplanMeier <- function(population,
   checkmate::assertLogical(censorMarks, len = 1, add = errorMessages)
   checkmate::assertLogical(confidenceIntervals, len = 1, add = errorMessages)
   checkmate::assertLogical(includeZero, len = 1, add = errorMessages)
+  checkmate::assertIntegerish(xBreaksInterval, lower = 1, len = 1, null.ok = TRUE, add = errorMessages)
   checkmate::assertLogical(dataTable, len = 1, add = errorMessages)
   checkmate::assertNumber(dataCutoff, lower = 0, upper = 1, add = errorMessages)
   checkmate::assertCharacter(targetLabel, len = 1, add = errorMessages)
@@ -146,7 +149,9 @@ plotKaplanMeier <- function(population,
   yLabel <- "Survival probability"
   xlims <- c(-cutoff / 40, cutoff)
 
-  if (cutoff <= 300) {
+  if (!is.null(xBreaksInterval)) {
+    xBreaks <- seq(0, cutoff, by = xBreaksInterval)
+  } else if (cutoff <= 300) {
     xBreaks <- seq(0, cutoff, by = 50)
   } else if (cutoff <= 600) {
     xBreaks <- seq(0, cutoff, by = 100)

@@ -279,6 +279,9 @@ test_that("Functions on outcome model", {
   p <- plotKaplanMeier(strata)
   expect_s3_class(p, "grob")
 
+  pCustomXBreaks <- plotKaplanMeier(strata, xBreaksInterval = 365)
+  expect_s3_class(p, "grob")
+  
   p <- drawAttritionDiagram(outcomeModel)
   expect_s3_class(p, "ggplot")
 
